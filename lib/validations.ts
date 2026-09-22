@@ -26,13 +26,17 @@ export const changePasswordSchema = z.object({
     .min(8, "Password baru minimal 8 karakter")
     .regex(/[a-zA-Z]/, "Password harus mengandung huruf")
     .regex(/[0-9]/, "Password harus mengandung angka"),
-  confirmNewPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmNewPassword, {
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Password baru dan confirm password tidak cocok",
-  path: ["confirmNewPassword"],
+  path: ["confirmPassword"],
 });
 
-export const transactionSchema = z.object({
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, "Nama minimal 2 karakter"),
+});
+
+export const createTransactionSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal tidak valid"),
   type: z.enum(["INCOME", "EXPENSE"]),
   amount: z.string().refine(
@@ -44,14 +48,30 @@ export const transactionSchema = z.object({
   note: z.string().optional(),
 });
 
-export const categorySchema = z.object({
+export const updateTransactionSchema = createTransactionSchema.extend({
+  id: z.string().min(1),
+});
+
+export const deleteTransactionSchema = z.object({
+  id: z.string().min(1),
+});
+
+export const createCategorySchema = z.object({
   name: z.string().min(1, "Nama kategori wajib diisi"),
   type: z.enum(["INCOME", "EXPENSE", "BOTH"]),
   color: z.string().regex(/^#?[0-9A-F]{6}$/i, "Warna harus format hex"),
   icon: z.string().optional(),
 });
 
-export const walletSchema = z.object({
+export const updateCategorySchema = createCategorySchema.extend({
+  id: z.string().min(1),
+});
+
+export const deleteCategorySchema = z.object({
+  id: z.string().min(1),
+});
+
+export const createWalletSchema = z.object({
   name: z.string().min(1, "Nama dompet wajib diisi"),
   type: z.enum(["CASH", "BANK", "EWALLET", "CREDIT_CARD", "OTHER"]),
   initialBalance: z.string().refine(
@@ -61,10 +81,30 @@ export const walletSchema = z.object({
   currency: z.string().default("IDR"),
 });
 
-export const budgetSchema = z.object({
+export const updateWalletSchema = createWalletSchema.omit({ initialBalance: true }).extend({
+  id: z.string().min(1),
+});
+
+export const deleteWalletSchema = z.object({
+  id: z.string().min(1),
+});
+
+export const createBudgetSchema = z.object({
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
   amount: z.string().refine(
     (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
     "Nominal budget harus lebih dari 0"
   ),
+});
+
+export const updateBudgetSchema = z.object({
+  id: z.string().min(1),
+  amount: z.string().refine(
+    (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
+    "Nominal budget harus lebih dari 0"
+  ),
+});
+
+export const deleteBudgetSchema = z.object({
+  id: z.string().min(1),
 });
